@@ -4,18 +4,19 @@ import Link from "next/link";
 
 type props={
     title:string;
+    searchTerm: string;
     className?: string;
     image?: string
 }
 
 function GridOption({
-    title, className, image
+    title,searchTerm, className, image
 }: props) {
   return (
     <Link href={
         {
             pathname: "/search",
-            query: { q:title },
+            query: { q:searchTerm },
         }
         
     }
