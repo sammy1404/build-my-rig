@@ -26,6 +26,8 @@ async function SearchPage({searchParams}:Props) {
             <Image 
               src={product.image || ''} 
               alt={product.title} 
+              width={200}
+              height={200}
               className='w-full h-auto mb-2' 
             />
             <h3 className='font-semibold'>{product.price}</h3>
