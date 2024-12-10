@@ -1,11 +1,11 @@
-import ProductPage from '@/components/ProductPage';
 import fetchSearch from '@/lib/fetchSearch'
 import Link from 'next/link';
+import Image from 'next/image';
 
 type Props = {
-  searchParams: {
+  searchParams: Promise<{
     q: string;
-  }
+  }>
 }
 
 async function SearchPage({searchParams}:Props) {
@@ -23,7 +23,11 @@ async function SearchPage({searchParams}:Props) {
       <ul className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5'>
         {results?.map(product => (
           <li key={product.link} className='border p-4 rounded'>
-            <img src={product.image} alt={product.title} className='w-full h-auto mb-2' />
+            <Image 
+              src={product.image || ''} 
+              alt={product.title} 
+              className='w-full h-auto mb-2' 
+            />
             <h3 className='font-semibold'>{product.price}</h3>
             <p className='text-lg text-gray-800'>{product.title}</p>
             <Link 

@@ -1,5 +1,4 @@
-import next from 'next';
-import puppeteer from 'puppeteer';
+import puppeteer, { Page } from 'puppeteer';
 
 export interface Product {
     title: string;
@@ -36,14 +35,14 @@ async function fetchSearch(searchTerm: string) {
 
     await browser.close();
     console.log(products)
-
+    /*
     next: {
         revalidate: 60*60*24
-    }
+    }*/
     return products;
 }
 
-async function autoScroll(page: any) {
+async function autoScroll(page: Page) {
     await page.evaluate(async () => {
         await new Promise<void>((resolve) => {
             const distance = 1000;

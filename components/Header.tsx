@@ -1,6 +1,6 @@
 "use client";
 
-import { Grid, Grid2x2, Heart, Search, ShoppingBasketIcon, ShoppingCart, User } from 'lucide-react'
+import { Grid, Grid2x2, Heart, Search, ShoppingCart, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import React, {FormEvent} from 'react'
