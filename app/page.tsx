@@ -14,7 +14,7 @@ export default function Home() {
           />
           <GridOption
             title="Graphics Card"
-            searchTerm="graphics-card"
+            searchTerm="graphics card"
             image="https://imgur.com/AUTOHVw"  
             className="bg-red-100 h-64 col-span-2"
           />
@@ -32,19 +32,19 @@ export default function Home() {
           />
           <GridOption
             title="Power Supply"
-            searchTerm="power-supply"
+            searchTerm="power supply"
             image="https://imgur.com/0l5n9P1"
             className="bg-yellow-100 h-64 col-span-1"
           />
           <GridOption
             title="SSD"
-            searchTerm="storage"
+            searchTerm="ssd"
             image="https://imgur.com/AMArYXc"
             className="bg-red-100 h-64 col-span-1"
           />
           <GridOption
             title="CPU case"
-            searchTerm="cabinets"
+            searchTerm="cabinet"
             image="https://imgur.com/fbe7pbO"
             className="bg-orange-100 col-span-1 h-64"
           />
@@ -56,7 +56,7 @@ export default function Home() {
           />
           <GridOption
           title="Cooling solutions"
-          searchTerm="cpu-cooler"
+          searchTerm="cpu cooler"
           image="https://imgur.com/6MREeBbg"
           className="bg-orange-100 col-span-1 h-64"
           />

@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { load } from 'cheerio';
+import next from 'next';
+import puppeteer from 'puppeteer';
 
 export interface Product {
     title: string;
@@ -10,34 +10,53 @@ export interface Product {
 
 
 async function fetchSearch(searchTerm: string) {
-    const newURL = `https://www.pcstudio.in/product-category/${searchTerm}`
+    searchTerm = searchTerm.split(' ').join('+');
+    // const newURL = `https://www.pcstudio.in/product-category/${searchTerm}`
+    const newURL = `https://www.pcstudio.in/?s=${searchTerm}&post_type=product&dgwt_wcas=1`
+
     
-    try {
-        const response = await axios(newURL);
-        const html = response.data;
-        const $ = load(html);
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(newURL);
 
-        const products: Product[] = [];
+    await autoScroll(page);
 
-        $('.woo-entry-inner', html).each(function() {
-            const title = $(this).find('.title a span').attr('title') || $(this).find('.title a span').text();
-            const price = $(this).find('.price ins .woocommerce-Price-amount').text().trim();
-            const image = $(this).find('.woo-entry-image-main').attr('src');
-            const link = $(this).find('.woocommerce-LoopProduct-link').attr('href');
+    const products: Product[] = await page.evaluate(() => {
+        const items = Array.from(document.querySelectorAll('.woo-entry-inner'));
+        return items.map(item => ({
+            title: item.querySelector('.title a span')?.getAttribute('title') || 
+                   item.querySelector('.title a span') || 
+                   item.querySelector('.title a')?.textContent,
+            price: item.querySelector('.price ins .woocommerce-Price-amount')?.textContent?.trim(),
+            image: item.querySelector('.woo-entry-image-main')?.getAttribute('src'),
+            link: item.querySelector('.woocommerce-LoopProduct-link')?.getAttribute('href'),
 
-            products.push({
-                title,
-                price,
-                image,  
-                link,
-            });
-        });
+        })) as Product[];
+    });
 
-        return products;
-    } catch (error) {
-        console.error(error);
-        return [{ title: 'Error', price: 'N/A', image: 'placeholder-image-url' }, { title: 'No Results', price: 'N/A', image: 'placeholder-image-url' }]; // returning an array with various values assigned as null
+    await browser.close();
+    console.log(products)
+
+    next: {
+        revalidate: 60*60*24
     }
+    return products;
+}
+
+async function autoScroll(page: any) {
+    await page.evaluate(async () => {
+        await new Promise<void>((resolve) => {
+            const distance = 1000;
+            const timer = setInterval(() => {
+                const scrollHeight = document.body.scrollHeight;
+                window.scrollBy(0, distance);
+                if (window.scrollY + window.innerHeight >= scrollHeight) {
+                    clearInterval(timer);
+                    resolve();
+                }
+            }, 100); // Reduced the interval to 50ms for faster scrolling
+        });
+    });
 }
 
 
