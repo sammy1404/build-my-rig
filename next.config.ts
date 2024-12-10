@@ -14,10 +14,16 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "www.pcstudio.in", // Added to allow this hostname
-      }
+      },
+      {
+        protocol: "https",
+        hostname: "picsum.photos", // Added to allow picsum.photos
+      },
+      
     ]
   }
 };
+
 
 
 export default nextConfig;
