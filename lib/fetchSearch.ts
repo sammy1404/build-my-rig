@@ -1,3 +1,5 @@
+'use client'
+
 import puppeteer, { Page } from 'puppeteer';
 
 export interface Product {
