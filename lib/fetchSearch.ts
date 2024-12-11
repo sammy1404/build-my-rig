@@ -1,4 +1,4 @@
-'use client'
+
 
 import puppeteer, { Page } from 'puppeteer';
 
