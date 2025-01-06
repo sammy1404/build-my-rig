@@ -1,6 +1,5 @@
-
-
-import puppeteer, { Page } from 'puppeteer';
+import axios from 'axios';
+import { load } from 'cheerio';
 
 export interface Product {
     title: string;
@@ -9,56 +8,46 @@ export interface Product {
     link: string | undefined;
 }
 
-
-async function fetchSearch(searchTerm: string) {
+async function fetchSearch(searchTerm: string): Promise<Product[]> {
+    // Convert the search term into a URL-friendly format
     searchTerm = searchTerm.split(' ').join('+');
-    // const newURL = `https://www.pcstudio.in/product-category/${searchTerm}`
-    const newURL = `https://www.pcstudio.in/?s=${searchTerm}&post_type=product&dgwt_wcas=1`
+    const baseURL = `https://www.pcstudio.in/page/{pageNumber}/?s=${searchTerm}&post_type=product&dgwt_wcas=1`;
 
-    
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto(newURL);
+    // Store all products extracted
+    let allProducts: Product[] = [];
+    let pageNumber = 1;
+    let hasMorePages = true;
 
-    await autoScroll(page);
+    // Continue fetching data from subsequent pages
+    while (hasMorePages) {
+        const url = baseURL.replace("{pageNumber}", pageNumber.toString());
+        const response = await axios.get(url);
+        const $ = load(response.data);
 
-    const products: Product[] = await page.evaluate(() => {
-        const items = Array.from(document.querySelectorAll('.woo-entry-inner'));
-        return items.map(item => ({
-            title: item.querySelector('.title a span')?.getAttribute('title') || 
-                   item.querySelector('.title a span') || 
-                   item.querySelector('.title a')?.textContent,
-            price: item.querySelector('.price ins .woocommerce-Price-amount')?.textContent?.trim(),
-            image: item.querySelector('.woo-entry-image-main')?.getAttribute('src'),
-            link: item.querySelector('.woocommerce-LoopProduct-link')?.getAttribute('href'),
+        // Extract product details
+        const products: Product[] = $('.woo-entry-inner').map((_, element) => {
+            const title = $(element).find('.title a span').attr('title') || 
+                          $(element).find('.title a span').text() || 
+                          $(element).find('.title a').text();
+            const price = $(element).find('.price ins .woocommerce-Price-amount').text().trim();
+            const image = $(element).find('.woo-entry-image-main').attr('src');
+            const link = $(element).find('.woocommerce-LoopProduct-link').attr('href');
 
-        })) as Product[];
-    });
+            return { title, price, image, link };
+        }).get();
 
-    await browser.close();
-    console.log(products)
-    /*
-    next: {
-        revalidate: 60*60*24
-    }*/
-    return products;
+        // Add extracted products to the list
+        allProducts = [...allProducts, ...products];
+
+        // Check if there's a next page by looking for the 'next' button or page
+        hasMorePages = $('.next').length > 0;
+        pageNumber++;
+    }
+
+    console.log('Extracted Products:', allProducts);
+
+
+    return allProducts;
 }
 
-async function autoScroll(page: Page) {
-    await page.evaluate(async () => {
-        await new Promise<void>((resolve) => {
-            const distance = 1000;
-            const timer = setInterval(() => {
-                const scrollHeight = document.body.scrollHeight;
-                window.scrollBy(0, distance);
-                if (window.scrollY + window.innerHeight >= scrollHeight) {
-                    clearInterval(timer);
-                    resolve();
-                }
-            }, 100); // Reduced the interval to 50ms for faster scrolling
-        });
-    });
-}
-
-
-export default fetchSearch
+export default fetchSearch;

@@ -10,7 +10,9 @@ type Props = {
 
 async function SearchPage({searchParams}:Props) {
   const { q } = await searchParams;
-  const results = await fetchSearch(q)
+  let results = await fetchSearch(q)
+
+
   return (
 
 
